@@ -1,0 +1,15 @@
+[package]
+edition = "2021"
+name = "private_publication_lobby"
+version = "0.0.1"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+name = "private_publication_lobby"
+
+[dependencies]
+serde = "1"
+derive_more = "0"
+private_publication_lobby_integrity = { path = "../../integrity_zomes/private_publication_lobby" }
+
+hdk = "0.0.142"

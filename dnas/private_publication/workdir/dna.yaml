@@ -1,0 +1,22 @@
+---
+manifest_version: "1"
+name: private_publication
+integrity:
+  uuid: 00000000-0000-0000-0000-000000000000
+  properties: ~
+  origin_time: 2022-07-17T14:43:30.487Z
+  zomes:
+    - name: private_publication_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/private_publication.wasm
+
+coordinator:
+  zomes:
+    - name: posts
+      bundled: ../../../target/wasm32-unknown-unknown/release/posts.wasm
+      dependencies:
+        - name: private_publication_integrity
+    - name: roles
+      bundled: ../../../target/wasm32-unknown-unknown/release/roles.wasm
+      dependencies:
+        - name: private_publication_integrity
+

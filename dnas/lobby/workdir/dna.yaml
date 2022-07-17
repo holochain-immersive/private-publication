@@ -1,0 +1,24 @@
+---
+manifest_version: "1"
+name: lobby
+integrity:
+  uuid: 00000000-0000-0000-0000-000000000000
+  properties: ~
+  origin_time: 2022-07-17T14:43:30.478Z
+  zomes:
+    - name: zome_0_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm
+    - name: zome_1_integrity
+      bundled: ../../../target/wasm32-unknown-unknown/release/private_publication_lobby_integrity.wasm
+
+coordinator:
+  zomes:
+    - name: zome_0
+      bundled: ../../../target/wasm32-unknown-unknown/release/profiles.wasm
+      dependencies:
+        - name: zome_0_integrity
+    - name: zome_1
+      bundled: ../../../target/wasm32-unknown-unknown/release/private_publication_lobby.wasm
+      dependencies:
+        - name: zome_1_integrity
+
