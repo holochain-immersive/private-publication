@@ -1,3 +1,4 @@
 
-mod entry_def_0;
-pub use entry_def_0::*;
+/** Don't change */
+#[cfg(not(feature = "exercise1"))]
+extern crate private_publication_lobby;

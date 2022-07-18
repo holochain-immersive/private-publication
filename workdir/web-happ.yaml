@@ -1,7 +1,0 @@
----
-manifest_version: "1"
-name: private_publication
-ui:
-  bundled: "../ui/dist.zip"
-happ_manifest:
-  bundled: "./private_publication.happ"

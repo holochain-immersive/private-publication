@@ -1,18 +1,5 @@
-use hdi::prelude::*;
-
-mod entry_def_0;
-pub use entry_def_0::EntryDef0;
 
 
-#[hdk_entry_defs]
-#[unit_enum(UnitEntryTypes)]
-pub enum EntryTypes {
-#[entry_def()]
-EntryDef0(EntryDef0),
-
-}
-
-#[hdk_extern]
-pub fn validate(_op: Op) -> ExternResult<ValidateCallbackResult> {
-  Ok(ValidateCallbackResult::Valid)
-}
+/** Don't change */
+#[cfg(not(feature = "exercise1"))]
+extern crate private_publication_lobby_integrity;

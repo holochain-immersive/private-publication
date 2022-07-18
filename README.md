@@ -1,4 +1,14 @@
-# my-app
+# private-publication
+
+This is an intermidiate Holochain training, with step by step exercises and their tests.
+
+It consists of a private publication hApp that has already been implemented, but only its backend.
+
+## Your goals
+
+Your goal is to re-implement this private publication happ, one step at a time.
+
+To do that, go into `EXERCISES.md` and follow its instructions. Have fun!
 
 ## Environment Setup
 
@@ -22,57 +32,12 @@ This will install all the needed dependencies in your local environment, includi
 
 Run all the other instructions in this README from inside this nix-shell, otherwise **they won't work**.
 
-## Bootstrapping a network
-
-Create a whole network of nodes connected to each other and their respective UIs with.
+## Testing
 
 ```bash
-npm run network 3
+npm test
 ```
 
-Substitute the "3" for the number of nodes that you want to bootstrap in your network.
-
-This will also bring up the Holochain Playground for advanced introspection of the conductors.
-
-## Running an agent
- 
-If you only want to run a single conductor and a UI connected to it:
-
-```bash
-npm start
-```
-
-To run another agent, open another terminal, and execute again:
-
-```bash
-npm start
-```
-
-Each new agent that you create this way will get assigned its own port and get connected to the other agents.
-
-## Running the DNA tests
-
-```bash
-npm run test
-```
-
-## Building the DNA
-
-```bash
-npm run build:happ
-```
-
-## Package
-
-To package the web happ:
-
-``` bash
-npm run package
-```
-
-You'll have the `my-app.webhapp` in `workdir`. This is what you should distribute so that the Holochain Launcher can install it.
-
-You will also have its subcomponent `my-app.happ` in the same folder`.
 
 ## Documentation
 

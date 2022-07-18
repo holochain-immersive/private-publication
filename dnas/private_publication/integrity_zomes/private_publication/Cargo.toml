@@ -8,7 +8,10 @@ crate-type = ["cdylib", "rlib"]
 name = "private_publication_integrity"
 
 [dependencies]
-serde = "1"
 derive_more = "0"
+serde = "1"
 
 hdi = "0.0.14"
+holo_hash = {version = "0.0.30", features = ["encoding"]}
+membrane_proof = {git = "https://github.com/holochain-immersive/zomes", branch = "main"}
+private_publication_integrity = {git = "https://github.com/holochain-immersive/zomes", branch = "main"}

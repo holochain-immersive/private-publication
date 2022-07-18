@@ -13,3 +13,4 @@ derive_more = "0"
 private_publication_integrity = { path = "../../integrity_zomes/private_publication" }
 
 hdk = "0.0.142"
+roles = {git = "https://github.com/holochain-immersive/zomes", branch = "main"}

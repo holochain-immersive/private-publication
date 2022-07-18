@@ -6,19 +6,13 @@ integrity:
   properties: ~
   origin_time: 2022-07-17T14:43:30.478Z
   zomes:
-    - name: zome_0_integrity
-      bundled: ../../../target/wasm32-unknown-unknown/release/profiles_integrity.wasm
-    - name: zome_1_integrity
+    - name: private_publication_lobby_integrity
       bundled: ../../../target/wasm32-unknown-unknown/release/private_publication_lobby_integrity.wasm
 
 coordinator:
   zomes:
-    - name: zome_0
-      bundled: ../../../target/wasm32-unknown-unknown/release/profiles.wasm
-      dependencies:
-        - name: zome_0_integrity
-    - name: zome_1
+    - name: private_publication_lobby
       bundled: ../../../target/wasm32-unknown-unknown/release/private_publication_lobby.wasm
       dependencies:
-        - name: zome_1_integrity
+        - name: private_publication_lobby_integrity
 

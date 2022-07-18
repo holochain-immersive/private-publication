@@ -29,6 +29,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "arrayref"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4c527152e37cf757a3f78aae5a06fbeefdb07ccc535c980a3208ee3060dd544"
+
+[[package]]
+name = "arrayvec"
+version = "0.5.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "23b62fc65de8e4e7f52534fb52b0f3ed04746ae267519eef2a83941e8085068b"
+
+[[package]]
 name = "autocfg"
 version = "1.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -50,6 +62,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "base64"
+version = "0.13.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "904dfeac50f3cdaba28fc6f57fdcddb75f49ed61346676a78c4ffe55877802fd"
+
+[[package]]
 name = "bit-set"
 version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -69,6 +87,17 @@ name = "bitflags"
 version = "1.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bef38d45163c2f1dde094a7dfd33ccf595c92905c8f8f4fdc18d06fb1037718a"
+
+[[package]]
+name = "blake2b_simd"
+version = "0.5.11"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "afa748e348ad3be8263be728124b24a24f268266f6f5d58af9d75f6a40b5c587"
+dependencies = [
+ "arrayref",
+ "arrayvec",
+ "constant_time_eq",
+]
 
 [[package]]
 name = "bumpalo"
@@ -128,6 +157,12 @@ dependencies = [
  "time",
  "winapi",
 ]
+
+[[package]]
+name = "constant_time_eq"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "245097e9a4535ee1e3e3931fcfcd55a796a44c643e8596ff6566d68f09b87bbc"
 
 [[package]]
 name = "convert_case"
@@ -531,6 +566,9 @@ version = "0.0.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "75be53c89cbd03f6c06643e5947ebe88986228ba66243bc62ae869ccac32da3e"
 dependencies = [
+ "base64",
+ "blake2b_simd",
+ "derive_more",
  "holochain_serialized_bytes",
  "kitsune_p2p_dht_arc",
  "serde",
@@ -780,6 +818,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "membrane_proof"
+version = "0.0.1"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+dependencies = [
+ "derive_more",
+ "hdi",
+ "serde",
+]
+
+[[package]]
 name = "memchr"
 version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -917,7 +965,7 @@ version = "0.0.1"
 dependencies = [
  "derive_more",
  "hdk",
- "private_publication_integrity",
+ "private_publication_integrity 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
  "serde",
 ]
 
@@ -927,6 +975,21 @@ version = "0.0.1"
 dependencies = [
  "derive_more",
  "hdi",
+ "holo_hash",
+ "membrane_proof",
+ "private_publication_integrity 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
+ "serde",
+]
+
+[[package]]
+name = "private_publication_integrity"
+version = "0.0.1"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+dependencies = [
+ "derive_more",
+ "hdi",
+ "holo_hash",
+ "membrane_proof",
  "serde",
 ]
 
@@ -936,13 +999,35 @@ version = "0.0.1"
 dependencies = [
  "derive_more",
  "hdk",
- "private_publication_lobby_integrity",
+ "private_publication_lobby 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
+ "serde",
+]
+
+[[package]]
+name = "private_publication_lobby"
+version = "0.0.1"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+dependencies = [
+ "derive_more",
+ "hdk",
+ "private_publication_lobby_integrity 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
  "serde",
 ]
 
 [[package]]
 name = "private_publication_lobby_integrity"
 version = "0.0.1"
+dependencies = [
+ "derive_more",
+ "hdi",
+ "private_publication_lobby_integrity 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
+ "serde",
+]
+
+[[package]]
+name = "private_publication_lobby_integrity"
+version = "0.0.1"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
 dependencies = [
  "derive_more",
  "hdi",
@@ -980,25 +1065,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dd96a1e8ed2596c337f8eae5f24924ec83f5ad5ab21ea8e455d3566c69fbcaf7"
 dependencies = [
  "unicode-ident",
-]
-
-[[package]]
-name = "profiles"
-version = "0.0.1"
-dependencies = [
- "derive_more",
- "hdk",
- "profiles_integrity",
- "serde",
-]
-
-[[package]]
-name = "profiles_integrity"
-version = "0.0.1"
-dependencies = [
- "derive_more",
- "hdi",
- "serde",
 ]
 
 [[package]]
@@ -1157,7 +1223,19 @@ version = "0.0.1"
 dependencies = [
  "derive_more",
  "hdk",
- "private_publication_integrity",
+ "private_publication_integrity 0.0.1",
+ "roles 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
+ "serde",
+]
+
+[[package]]
+name = "roles"
+version = "0.0.1"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+dependencies = [
+ "derive_more",
+ "hdk",
+ "private_publication_integrity 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
  "serde",
 ]
 
