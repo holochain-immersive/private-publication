@@ -50,7 +50,7 @@ We are going to create the zome for the lobby DNA, with this functionality:
 
 Solve the next steps in the `private_publication_lobby` coordinator zome, in `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`.
 
-1. Add a `Properties` struct, with only a `progenitor` field of type `AgentPubKeyB64`.
+1. Add a `Properties` struct, with only a `progenitor` field of type `AgentPubKey`.
 
 - Annotate this struct with `#[derive(Serialize, Deserialize, Debug, SerializedBytes)]`.
 - Create an extern function that returns the progenitor for this DNA.
@@ -59,7 +59,7 @@ Solve the next steps in the `private_publication_lobby` coordinator zome, in `dn
 
 2. Create a function `request_read_all_posts` that doesn't receive any input, and makes a bridge call to the cell with role id `private_publication`, zome name `posts`, and function name `get_all_posts`, and just returns its contents.
 
-3. Create a function `grant_capability_to_read` that receives an `AgentPubKey` struct, generates a capability secret with `random_bytes()`, and grants capability to call `request_read_all_posts` to the given agent.
+3. Create a function `grant_capability_to_read` that receives an `AgentPubKey` struct, generates a capability secret with `random_bytes()`, and grants capability to call `request_read_all_posts` to the given agent. It should return the secret.
 
 4. Create a function `store_capability_claim` that receives an `CapSecret`, and stores a capability claim with that secret, the progenitor agent as the grantor.
 
