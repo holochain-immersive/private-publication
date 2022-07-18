@@ -14,3 +14,6 @@ private_publication_integrity = { path = "../../integrity_zomes/private_publicat
 
 hdk = "0.0.142"
 roles = {git = "https://github.com/holochain-immersive/zomes", branch = "main"}
+
+[features]
+exercise2 = []

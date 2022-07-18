@@ -1,5 +1,10 @@
-use hdk::prelude::*;
+use hdk::prelude::{*, holo_hash::DnaHash};
 use private_publication_integrity::{EntryTypes, LinkTypes, Post};
+
+#[hdk_extern]
+pub fn get_dna_hash(_: ()) -> ExternResult<DnaHash> {
+    Ok(dna_info()?.hash)
+}
 
 #[hdk_extern]
 pub fn get_all_posts(_: ()) -> ExternResult<Vec<Record>> {

@@ -1,5 +1,13 @@
+use hdi::prelude::*;
+pub use membrane_proof::PrivatePublicationMembraneProof;
 
+#[hdk_entry_defs]
+#[unit_enum(UnitEntryType)]
+pub enum EntryTypes {
+    PrivatePublicationMembraneProof(PrivatePublicationMembraneProof),
+}
 
-/** Don't change */
-#[cfg(not(feature = "exercise1"))]
-extern crate private_publication_lobby_integrity;
+#[hdk_link_types]
+pub enum LinkTypes {
+    AgentToMembraneProof,
+}

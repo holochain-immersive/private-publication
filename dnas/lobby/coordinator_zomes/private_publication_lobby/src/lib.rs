@@ -1,4 +1,4 @@
 
 /** Don't change */
-#[cfg(not(feature = "exercise1"))]
+#[cfg(feature = "exercise")]
 extern crate private_publication_lobby;

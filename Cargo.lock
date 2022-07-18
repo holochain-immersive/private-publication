@@ -820,7 +820,16 @@ dependencies = [
 [[package]]
 name = "membrane_proof"
 version = "0.0.1"
-source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+dependencies = [
+ "derive_more",
+ "hdi",
+ "serde",
+]
+
+[[package]]
+name = "membrane_proof"
+version = "0.0.1"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#93e9c0a62e3d21a070e039fc658e11b45021273d"
 dependencies = [
  "derive_more",
  "hdi",
@@ -976,7 +985,7 @@ dependencies = [
  "derive_more",
  "hdi",
  "holo_hash",
- "membrane_proof",
+ "membrane_proof 0.0.1",
  "private_publication_integrity 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
  "serde",
 ]
@@ -984,12 +993,12 @@ dependencies = [
 [[package]]
 name = "private_publication_integrity"
 version = "0.0.1"
-source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#93e9c0a62e3d21a070e039fc658e11b45021273d"
 dependencies = [
  "derive_more",
  "hdi",
  "holo_hash",
- "membrane_proof",
+ "membrane_proof 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
  "serde",
 ]
 
@@ -999,14 +1008,16 @@ version = "0.0.1"
 dependencies = [
  "derive_more",
  "hdk",
+ "membrane_proof 0.0.1",
  "private_publication_lobby 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
+ "private_publication_lobby_integrity 0.0.1",
  "serde",
 ]
 
 [[package]]
 name = "private_publication_lobby"
 version = "0.0.1"
-source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#93e9c0a62e3d21a070e039fc658e11b45021273d"
 dependencies = [
  "derive_more",
  "hdk",
@@ -1020,6 +1031,7 @@ version = "0.0.1"
 dependencies = [
  "derive_more",
  "hdi",
+ "membrane_proof 0.0.1",
  "private_publication_lobby_integrity 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
  "serde",
 ]
@@ -1027,10 +1039,11 @@ dependencies = [
 [[package]]
 name = "private_publication_lobby_integrity"
 version = "0.0.1"
-source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#93e9c0a62e3d21a070e039fc658e11b45021273d"
 dependencies = [
  "derive_more",
  "hdi",
+ "membrane_proof 0.0.1 (git+https://github.com/holochain-immersive/zomes?branch=main)",
  "serde",
 ]
 
@@ -1231,7 +1244,7 @@ dependencies = [
 [[package]]
 name = "roles"
 version = "0.0.1"
-source = "git+https://github.com/holochain-immersive/zomes?branch=main#d39e88ad61b6563218730db0c6260b24d0ff80f6"
+source = "git+https://github.com/holochain-immersive/zomes?branch=main#93e9c0a62e3d21a070e039fc658e11b45021273d"
 dependencies = [
  "derive_more",
  "hdk",

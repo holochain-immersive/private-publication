@@ -73,4 +73,47 @@ Solve the next steps in the `private_publication_lobby` coordinator zome, in `dn
 
 ## Exercise 2: Validation Rules
 
-TBD
+We are going to implement these new functionalities:
+
+- As the progenitor of the private publication, I should be able to invite other agents into the private publication DNA.
+- As the progenitor of the private publication, only I should be able to assign the editor role to agents in the private publication DNA.
+- Only agents with the editor role should be able to create posts in the private publication DNA.
+- Only the creator of a post should be able to update it.
+
+Go into `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`:
+
+1. Create a  `create_membrane_proof_for` zome function that receives an `AgentPubKey` and returns no output. This function will be executed by the progenitor of the app.
+   - Does a bridge call to the `get_dna_hash` of the `posts` zome of the `private_publication` DNA, without passing any arguments. That function is already defined and returns a `DnaHash`.
+   - Create a `PrivatePublicationMembraneProof` entry with the private publication DNA hash and the recipient for that membrane. 
+   - Create a link from the agent public key of the recipient to the newly created action.
+2. Create a `get_my_membrane` zome function that doesn't receive any parameters, and returns an `Option<Record>`.
+   - Get the links from your public key of type `LinkTypes::AgentToMembraneProof`.
+   - If there is some link, return the record that the target is pointing to.
+
+Now go into `dnas/private_publication/integrity_zomes/private_publication/src/validation.rs`. There you can see boilerplate that allows for the genesis self-check and for different validations for the two kinds of entries present in that DNA.
+
+Go into `dnas/private_publication/integrity_zomes/private_publication/src/membrane.rs`. 
+
+3. Implement the membrane proof check to avoid unwanted agents coming into the DHT:
+    - If the agent we are validating for is the progenitor, then the membrane proof check is valid.
+    - If not, serialize the membrane proof into a `Record`.
+    - Check that the author of the action in the record is the progenitor.
+    - Check that the signature in the Record is valid for the `record.action_hashed().content()` of the record.
+    - Serialize the record's entry into a `PrivatePublicationMembraneProof`.
+    - Check that the dna hash inside the `PrivatePublicationMembraneProof` is equal to the dna hash of the `private_publication` DNA.
+    - Check that the agent we are checking the membrane for is the agent that is inside the `PrivatePublicationMembraneProof`.
+
+Go into `dnas/private_publication/coordinator_zomes/roles/src/lib.rs`. 
+
+4. Create an `assign_editor_role` function that takes an `AgentPubKey`, and creates a `PublicationRole` entry with role equal to `String::from("editor")`.
+
+Go into `dnas/private_publication/integrity_zomes/private_publication/src/publication_role.rs`. 
+
+5. Implement the `validate_create_role`, only allowing the progenitor to create the `PublicationRole` entry.
+
+Go into `dnas/private_publication/integrity_zomes/private_publication/src/post.rs`. 
+
+6. Implement the `validate_create_post` function so that only agents for which a `PublicationRole` with role "editor" has been created can create posts.
+
+7. Implement the `validate_update_post` function so that only the original author of the post can modify their posts.
+
