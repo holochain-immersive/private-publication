@@ -86,7 +86,7 @@ Go into `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`:
    - Does a bridge call to the `get_dna_hash` of the `posts` zome of the `private_publication` DNA, without passing any arguments. That function is already defined and returns a `DnaHash`.
    - Create a `PrivatePublicationMembraneProof` entry with the private publication DNA hash and the recipient for that membrane. 
    - Create a link from the agent public key of the recipient to the newly created action.
-2. Create a `get_my_membrane` zome function that doesn't receive any parameters, and returns an `Option<Record>`.
+2. Create a `get_my_membrane_proof` zome function that doesn't receive any parameters, and returns an `Option<Record>`.
    - Get the links from your public key of type `LinkTypes::AgentToMembraneProof`.
    - If there is some link, return the record that the target is pointing to.
 
