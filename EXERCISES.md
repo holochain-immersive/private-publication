@@ -53,7 +53,7 @@ Solve the next steps in the `private_publication_lobby` coordinator zome, in `dn
 1. Add a `Properties` struct, with only a `progenitor` field of type `AgentPubKeyB64`.
 
 - Annotate this struct with `#[derive(Serialize, Deserialize, Debug, SerializedBytes)]`.
-- Create an extern function that returns the progenitor for this DNA.
+- Create an extern function `progenitor` that doesn't have any input parameters and that returns the `AgentPubKey` for the progenitor of this DNA.
   - Get the serialized properties with `dna_info()?.properties`.
   - Transform that serialized properties type into our `Properties` struct.
 
