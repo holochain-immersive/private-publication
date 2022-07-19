@@ -59,7 +59,7 @@ Solve the next steps in the `private_publication_lobby` coordinator zome, in `dn
 
 2. Create a function `request_read_all_posts` that doesn't receive any input, and makes a bridge call to the cell with role id `private_publication`, zome name `posts`, and function name `get_all_posts`, and just returns its contents.
 
-3. Create a function `grant_capability_to_read` that receives an `AgentPubKey` struct, generates a capability secret with `random_bytes()`, and grants capability to call `request_read_all_posts` to the given agent.
+3. Create a function `grant_capability_to_read` that receives an `AgentPubKey` struct, generates a capability secret with `random_bytes()`, grants capability to call `request_read_all_posts` to the given agent, and returns the `CapSecret` that was generated.
 
 4. Create a function `store_capability_claim` that receives an `CapSecret`, and stores a capability claim with that secret, the progenitor agent as the grantor.
 
