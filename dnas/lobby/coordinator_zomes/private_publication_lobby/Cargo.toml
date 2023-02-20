@@ -9,12 +9,12 @@ name = "private_publication_lobby"
 
 [dependencies]
 derive_more = "0"
-membrane_proof = {path = "../../../../crates/membrane_proof"}
-private_publication_lobby = {git = "https://github.com/holochain-immersive/zomes", branch = "main", package = "private_publication_lobby"}
-private_publication_lobby_integrity = {path = "../../integrity_zomes/private_publication_lobby"}
+membrane_proof = { path = "../../../../crates/membrane_proof" }
+private_publication_lobby = { git = "https://github.com/holochain-immersive/zomes", branch = "main", package = "private_publication_lobby" }
+private_publication_lobby_integrity = { path = "../../integrity_zomes/private_publication_lobby" }
 serde = "1"
 
-hdk = "0.0.142"
+hdk = { workspace = true }
 
 [features]
 exercise = []

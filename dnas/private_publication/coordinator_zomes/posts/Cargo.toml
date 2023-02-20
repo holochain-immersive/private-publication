@@ -11,5 +11,5 @@ name = "posts"
 serde = "1"
 derive_more = "0"
 
-hdk = "0.0.142"
-private_publication_integrity = {git = "https://github.com/holochain-immersive/zomes", branch = "main"}
+hdk = { workspace = true }
+private_publication_integrity = { git = "https://github.com/holochain-immersive/zomes", branch = "main" }

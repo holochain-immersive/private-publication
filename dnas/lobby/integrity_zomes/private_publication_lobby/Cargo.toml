@@ -11,6 +11,6 @@ name = "private_publication_lobby_integrity"
 derive_more = "0"
 serde = "1"
 
-hdi = "0.0.14"
-private_publication_lobby_integrity = {git = "https://github.com/holochain-immersive/zomes", branch = "main"}
-membrane_proof = {path = "../../../../crates/membrane_proof"}
+hdi = { workspace = true }
+private_publication_lobby_integrity = { git = "https://github.com/holochain-immersive/zomes", branch = "main" }
+membrane_proof = { path = "../../../../crates/membrane_proof" }
