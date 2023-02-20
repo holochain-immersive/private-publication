@@ -1,9 +1,10 @@
 import { pause, runScenario } from "@holochain/tryorama";
 import pkg from "tape-promise/tape";
 const { test } = pkg;
+import { ActionHash } from "@holochain/client";
 
-import { lobbyDna, privatePublicationDna, progenitorHapp } from "./utils";
 import { Base64 } from "js-base64";
+import { installApp, privatePublicationApp } from "./utils";
 
 export function deserializeHash(hash: string): Uint8Array {
   return Base64.toUint8Array(hash.slice(1));
@@ -20,106 +21,49 @@ export default () =>
   test("Grant capability", async (t) => {
     try {
       await runScenario(async (scenario) => {
-        const alice = await scenario.addConductor();
-        const alicePubKey = await alice.adminWs().generateAgentPubKey();
+        const [aliceConductor, alice] = await installApp(scenario);
+        const [bobConductor, bob] = await installApp(scenario);
 
-        const lobbyDnaHash = await alice.adminWs().registerDna({
-          path: lobbyDna,
-          properties: {
-            progenitor: serializeHash(alicePubKey),
+        await aliceConductor.appAgentWs().createCloneCell({
+          role_name: "private_publication",
+          modifiers: {
+            network_seed: "test",
+            properties: {
+              progenitor: serializeHash(alice.agentPubKey),
+            },
           },
         });
 
-        const privatePublicationDnaHash = await alice.adminWs().registerDna({
-          path: privatePublicationDna,
-          properties: {
-            progenitor: serializeHash(alicePubKey),
-          },
-        });
-        await alice.adminWs().installApp({
-          agent_key: alicePubKey,
-          dnas: [
-            {
-              hash: lobbyDnaHash,
-              role_id: "lobby",
-            },
-            {
-              hash: privatePublicationDnaHash,
-              role_id: "private_publication",
-            },
-          ],
-          installed_app_id: "private_publication",
-        });
-        await alice.adminWs().enableApp({
-          installed_app_id: "private_publication",
-        });
-
-        const bob = await scenario.addConductor();
-        const bobPubKey = await bob.adminWs().generateAgentPubKey();
-        await bob.adminWs().registerDna({
-          path: lobbyDna,
-          properties: {
-            progenitor: serializeHash(alicePubKey),
-          },
-        });
-        await bob.adminWs().installApp({
-          agent_key: bobPubKey,
-          dnas: [
-            {
-              hash: lobbyDnaHash,
-              role_id: "lobby",
-            },
-          ],
-          installed_app_id: "private_publication",
-        });
-        await bob
-          .adminWs()
-          .enableApp({ installed_app_id: "private_publication" });
-
+        // Shortcut peer discovery through gossip and register all agents in every
+        // conductor of the scenario.
         await scenario.shareAllAgents();
 
-        const progenitor = await alice.appWs().callZome({
-          cap_secret: null,
-          cell_id: [lobbyDnaHash, alicePubKey],
-          fn_name: "progenitor",
-          payload: null,
-          provenance: alicePubKey,
-          zome_name: "private_publication_lobby",
-        });
-        t.equal(serializeHash(alicePubKey), serializeHash(progenitor));
+        const aliceLobby = alice.namedCells.get("lobby")!;
+        const bobLobby = bob.namedCells.get("lobby")!;
 
-        if (isExercise && stepNum === 1) return;
-
-        await alice.appWs().callZome({
-          cap_secret: null,
-          cell_id: [privatePublicationDnaHash, alicePubKey],
+        await aliceConductor.appAgentWs().callZome({
+          role_name: "private_publication.0",
           fn_name: "create_post",
           payload: {
             title: "Post 1",
             content: "Posts post",
           },
-          provenance: alicePubKey,
           zome_name: "posts",
         });
 
-        let allPosts = await alice.appWs().callZome({
-          cap_secret: null,
-          cell_id: [lobbyDnaHash, alicePubKey],
+        let allPosts: Array<ActionHash> = await aliceLobby.callZome({
           fn_name: "request_read_all_posts",
           payload: null,
-          provenance: alicePubKey,
+          provenance: alice.agentPubKey,
           zome_name: "private_publication_lobby",
         });
         t.equal(allPosts.length, 1);
-        if (isExercise && stepNum === 2) return;
+        if (isExercise && stepNum === 1) return;
 
         try {
-          const allPosts: any = await bob.appWs().callZome({
-            cap_secret: null,
-            cell_id: [lobbyDnaHash, bobPubKey],
+          const allPosts: any = await bobLobby.callZome({
             fn_name: "read_all_posts",
-            payload: null,
-            provenance: bobPubKey,
+            payload: alice.agentPubKey,
             zome_name: "private_publication_lobby",
           });
           t.ok(false);
@@ -127,38 +71,30 @@ export default () =>
           t.ok(true);
         }
 
-        const secret = await alice.appWs().callZome({
-          cap_secret: null,
-          cell_id: [lobbyDnaHash, alicePubKey],
+        const secret = await aliceLobby.callZome({
           fn_name: "grant_capability_to_read",
-          payload: bobPubKey,
-          provenance: alicePubKey,
+          payload: bob.agentPubKey,
+          provenance: alice.agentPubKey,
+          zome_name: "private_publication_lobby",
+        });
+        if (isExercise && stepNum === 2) return;
+
+        await bobLobby.callZome({
+          fn_name: "store_capability_claim",
+          payload: { cap_secret: secret, grantor: alice.agentPubKey },
+          provenance: bob.agentPubKey,
           zome_name: "private_publication_lobby",
         });
         if (isExercise && stepNum === 3) return;
 
-        await bob.appWs().callZome({
-          cap_secret: null,
-          cell_id: [lobbyDnaHash, bobPubKey],
-          fn_name: "store_capability_claim",
-          payload: secret,
-          provenance: bobPubKey,
-          zome_name: "private_publication_lobby",
-        });
-        if (isExercise && stepNum === 4) return;
-
-        allPosts = await bob.appWs().callZome({
-          cap_secret: null,
-          cell_id: [lobbyDnaHash, bobPubKey],
+        allPosts = await bobLobby.callZome({
           fn_name: "read_all_posts",
-          payload: null,
-          provenance: bobPubKey,
+          payload: alice.agentPubKey,
           zome_name: "private_publication_lobby",
         });
         t.equal(allPosts.length, 1);
 
-        if (isExercise && stepNum === 5) return;
-
+        if (isExercise && stepNum === 4) return;
       });
     } catch (e) {
       console.log(e);
