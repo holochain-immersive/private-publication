@@ -12,7 +12,7 @@ To do that, go into `EXERCISES.md` and follow its instructions. Have fun!
 
 ## Environment Setup
 
-1. Install the holochain dev environment (only nix-shell is required): https://developer.holochain.org/docs/install/
+1. Install the holochain dev environment: https://developer.holochain.org/docs/install/
 2. Enable Holochain cachix with:
 
 ```bash
@@ -24,20 +24,19 @@ cachix use holochain-ci
 4. Enter the nix shell by running this in the root folder of the repository: 
 
 ```bash
-nix-shell
+nix develop
 npm install
 ```
 
 This will install all the needed dependencies in your local environment, including `holochain`, `hc` and `npm`.
 
-Run all the other instructions in this README from inside this nix-shell, otherwise **they won't work**.
+Run all the other instructions in this README from inside this nix develop shell, otherwise **they won't work**.
 
 ## Testing
 
 ```bash
 npm test
 ```
-
 
 ## Documentation
 
