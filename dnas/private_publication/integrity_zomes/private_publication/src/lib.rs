@@ -3,15 +3,16 @@
 
 /** Don't change */
 #[cfg(feature = "exercise2")]
-mod validation;
+pub mod validation;
 #[cfg(feature = "exercise2")]
-mod post;
+pub mod post;
 #[cfg(feature = "exercise2")]
-mod publication_role;
+pub mod publication_role;
 #[cfg(feature = "exercise2")]
-mod membrane;
+pub mod membrane;
 #[cfg(feature = "exercise2")]
-mod properties;
+pub mod properties;
 
 #[cfg(not(feature = "exercise2"))]
 extern crate private_publication_integrity;
+

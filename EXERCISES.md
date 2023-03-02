@@ -9,22 +9,21 @@ These are the instructions for the first step, amenable to all the other steps:
 - This is the error message you should see:
 
 ```
-# profiles zome: create profile and retrieve it
-not ok 1 Error: There are no entries defined in the profiles zome
-  ---
-    operator: error
-    at: bound (/home/guillem/projects/immersive/forum-happ/node_modules/tape-promise/node_modules/onetime/index.js:30:12)
-    stack: |-
-      Error: There are no entries defined in the profiles zome
-          at file:///home/guillem/projects/immersive/forum-happ/tests/src/profile.ts:35:13
-          at processTicksAndRejections (node:internal/process/task_queues:96:5)
-          at async runScenario (file:///home/guillem/projects/immersive/forum-happ/node_modules/@holochain/tryorama/ts/src/local/scenario.ts:202:5)
-  ...
+14:15:40 [Tryorama - Local Conductor] info: WARNING: running without local db encryption
 
-1..1
-# tests 1
-# pass  0
-# fail  1
+14:15:40 [Tryorama - Local Conductor] info: WARNING: running without local db encryption
+
+{
+  type: 'error',
+  data: {
+    type: 'ribosome_error',
+    data: "Attempted to call a zome function that doesn't exist: Zome: private_publication_lobby Fn grant_capability_to_read"
+  }
+}
+npm ERR! Lifecycle script `test` failed with error: 
+npm ERR! Error: command failed 
+npm ERR!   in workspace: tests@0.0.0 
+npm ERR!   at location: /home/guillem/projects/holochain/immersive/private-publication/tests 
 ```
 
 2. Implement the missing function that that step requires (see step 1 in the "Exercise 1: Profiles zome" section of this document).
@@ -112,6 +111,7 @@ Solve the next steps in the `private_publication_lobby` coordinator zome, in `dn
 
 - Query the source chain to get the capability claim.
 - Call remote to the given author's `request_read_private_publication_posts` and the capability secret found in the capability claim.
+  - Make sure to return the actual error message from the `ZomeCallResponse` if the `call_remote` fails.
 - Return the result.
 
 4. Create a function `request_read_private_publication_posts` with no inputs that:
@@ -147,6 +147,7 @@ Go into `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`:
 1. Create a  `create_membrane_proof_for` zome function that receives a `PrivatePublicationMembraneProof` and returns no output. This function will be executed by the progenitor of the app.
    - Create a `PrivatePublicationMembraneProof` entry with the private publication DNA hash and the recipient for that membrane. 
    - Create a link from the agent public key of the recipient to the newly created action.
+
 2. Create a `get_my_membrane_proof` zome function that doesn't receive any parameters, and returns an `Option<Record>`.
    - Get the links from your public key of type `LinkTypes::AgentToMembraneProof`.
    - If there is some link, return the record that the target is pointing to.

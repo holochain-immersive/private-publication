@@ -1,6 +1,6 @@
-use crate::properties::progenitor;
 use hdi::prelude::*;
 
+#[derive(Clone)]
 #[hdk_entry_helper]
 pub struct PublicationRole {
     pub role: String,

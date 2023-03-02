@@ -61,7 +61,7 @@ export default () =>
           });
           t.ok(false);
         } catch (e) {
-          t.ok(true);
+          // Bob doesn't have permissions to read yet
         }
 
         const secret = await aliceLobby.callZome({
@@ -72,13 +72,15 @@ export default () =>
           },
           zome_name: "private_publication_lobby",
         });
+        t.ok(true, "An author should be able to create capability grants to readers");
         if (isExercise && stepNum === 1) return;
 
         await bobLobby.callZome({
           fn_name: "store_capability_claim",
-          payload: { cap_secret: secret, grantor: alice.agentPubKey },
+          payload: { cap_secret: secret, author: alice.agentPubKey },
           zome_name: "private_publication_lobby",
         });
+        t.ok(true)
         if (isExercise && stepNum === 2) return;
 
         if (isExercise && stepNum === 3) {
@@ -90,10 +92,9 @@ export default () =>
             });
             t.ok(false);
           } catch (e) {
-            t.ok(JSON.stringify(e).includes('zome function not found'), 'read_posts_for_author should make a call_remote to `request_read_private_publication_posts` ')
+            t.ok(JSON.stringify(e).includes('ZomeFnNotExists'), 'read_posts_for_author should make a call_remote to `request_read_private_publication_posts` ')
           }
         } else {
-        
           allPosts = await bobLobby.callZome({
             fn_name: "read_posts_for_author",
             payload: alice.agentPubKey,

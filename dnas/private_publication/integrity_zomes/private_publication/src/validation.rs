@@ -1,8 +1,8 @@
 use hdi::prelude::*;
 
 use crate::membrane::is_membrane_proof_valid;
-use crate::post::{validate_create_post, validate_update_post};
-use crate::publication_role::validate_create_role;
+use crate::post::*;
+use crate::publication_role::*;
 
 pub use crate::post::Post;
 pub use crate::publication_role::PublicationRole;

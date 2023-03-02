@@ -1,10 +1,12 @@
 import { pause, runScenario, CallableCell } from "@holochain/tryorama";
-import { encode } from "@msgpack/msgpack";
+import {Record} from '@holochain/client'
+import { decode, encode } from "@msgpack/msgpack";
 import pkg from "tape-promise/tape";
 const { test } = pkg;
 
 import { installApp, privatePublicationApp } from "./utils";
 import { Base64 } from "js-base64";
+import { cloneDeep } from "lodash-es";
 
 export function deserializeHash(hash: string): Uint8Array {
   return Base64.toUint8Array(hash.slice(1));
@@ -43,12 +45,13 @@ export default () =>
         const aliceLobby = alice.namedCells.get("lobby")!;
         const bobLobby = bob.namedCells.get("lobby")!;
 
+        const membraneProofEntry = {
+          recipient: bob.agentPubKey,
+          dna_hash: privatePublicationCell.cell_id[0]
+        };
         await aliceLobby.callZome({
           fn_name: "create_membrane_proof_for",
-          payload: {
-            recipient: bob.agentPubKey,
-            dna_hash: privatePublicationCell.cell_id[0]
-          },
+          payload: membraneProofEntry,
           provenance: alice.agentPubKey,
           zome_name: "private_publication_lobby",
         });
@@ -56,15 +59,16 @@ export default () =>
 
         if (isExercise && stepNum === 1) return;
 
-        await pause(100);
+        await pause(200);
 
-        const membraneProof = await bobLobby.callZome({
+        const membraneProof: Record | undefined = await bobLobby.callZome({
           fn_name: "get_my_membrane_proof",
           payload: null,
           provenance: bob.agentPubKey,
           zome_name: "private_publication_lobby",
         });
         t.ok(membraneProof);
+        t.deepEqual(decode((membraneProof as any).entry.Present.entry), membraneProofEntry);
 
         let bobsPrivatePublicationCellId;
         try {
@@ -138,7 +142,34 @@ export default () =>
             "An agent that hasn't been invited by the progenitor shouldn't be able to install the private_publication cell"
           );
         } catch (e) {
-          t.ok(true);
+          try {
+            const tamperedMembraneProof = cloneDeep(membraneProof!);
+            const tamperedMembraneProofEntry = {
+              recipient: carol.agentPubKey,
+              dna_hash: privatePublicationCell.cell_id[0]
+            };
+    
+            tamperedMembraneProof.entry = {
+              Present: {
+                entry_type:  'App',
+                entry: encode(tamperedMembraneProofEntry)
+              }
+            }
+            await carolConductor.appWs().createCloneCell({
+              app_id: "private_publication",
+              role_name: "private_publication",
+              modifiers: {
+                network_seed: "test",
+                properties: {
+                  progenitor: serializeHash(alice.agentPubKey),
+                },
+              },
+              membrane_proof: Buffer.from(encode(membraneProof)),
+            });
+            t.ok(false, "An attacker that tries to tamper the membrane proof entry shouldn't be able to install the Dna")
+          } catch (e) {
+            t.ok(true);
+          }
         }
         if (isExercise && stepNum === 4) return;
 

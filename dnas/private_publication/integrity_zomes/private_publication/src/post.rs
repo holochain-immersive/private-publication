@@ -1,6 +1,6 @@
 use hdi::prelude::*;
-use crate::{properties::progenitor, *};
 
+#[derive(Clone)]
 #[hdk_entry_helper]
 pub struct Post {
     pub title: String,
@@ -23,7 +23,7 @@ pub fn validate_update_post(
     Ok(ValidateCallbackResult::Valid)
 }
 
-/** Validation that is already implemeneted, don't touch **/
+/** These validations are already implemeneted, don't touch **/
 
 pub fn validate_delete_post(
     _action: Delete,
@@ -42,7 +42,7 @@ pub fn validate_create_link_all_posts(
 ) -> ExternResult<ValidateCallbackResult> {
     let action_hash = ActionHash::from(target_address);
     let record = must_get_valid_record(action_hash)?;
-    let _post: crate::Post = record
+    let _post: Post = record
         .entry()
         .to_app_option()
         .map_err(|e| wasm_error!(e))?
