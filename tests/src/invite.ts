@@ -66,19 +66,23 @@ export default () =>
         });
         t.ok(membraneProof);
 
+        let bobsPrivatePublicationCellId;
         try {
-          await bobConductor.appWs().createCloneCell({
+          const cloneCell = await bobConductor.appWs().createCloneCell({
             app_id: "private_publication",
             role_name: "private_publication",
             modifiers: {
+              network_seed: "test",
               properties: {
                 progenitor: serializeHash(alice.agentPubKey),
               },
             },
             membrane_proof: Buffer.from(encode(membraneProof)),
           });
+          bobsPrivatePublicationCellId = cloneCell.cell_id;
           t.ok(true);
         } catch (e) {
+          console.log(e);
           t.ok(
             false,
             "An agent that has been given a membrane proof should be able to enter the private publications DNA"
@@ -89,10 +93,10 @@ export default () =>
         if (isExercise && stepNum === 2) return;
 
         const progenitor = await aliceConductor.appAgentWs().callZome({
-          role_name: "private_publication.0",
+          cell_id: privatePublicationCell.cell_id,
           fn_name: "progenitor",
           payload: null,
-          zome_name: "private_publication",
+          zome_name: "private_publication_integrity",
         });
         t.deepEqual(progenitor, alice.agentPubKey);
 
@@ -103,6 +107,7 @@ export default () =>
             app_id: "private_publication",
             role_name: "private_publication",
             modifiers: {
+              network_seed: "test",
               properties: {
                 progenitor: serializeHash(alice.agentPubKey),
               },
@@ -110,10 +115,9 @@ export default () =>
           });
           t.ok(
             false,
-            "An agent other than the progenitor shouldn't be able to install the private_publication cell"
+            "An agent that doesn't provide a membrane proof shouldn't be able to install the private_publication cell"
           );
         } catch (e) {
-          console.log(e);
           t.ok(true);
         }
 
@@ -122,6 +126,7 @@ export default () =>
             app_id: "private_publication",
             role_name: "private_publication",
             modifiers: {
+              network_seed: "test",
               properties: {
                 progenitor: serializeHash(alice.agentPubKey),
               },
@@ -130,7 +135,7 @@ export default () =>
           });
           t.ok(
             false,
-            "An agent other than the progenitor shouldn't be able to install the private_publication cell"
+            "An agent that hasn't been invited by the progenitor shouldn't be able to install the private_publication cell"
           );
         } catch (e) {
           t.ok(true);
@@ -139,17 +144,15 @@ export default () =>
 
         if (isExercise && stepNum === 5) {
           await aliceConductor.appAgentWs().callZome({
-            role_name: "private_publication.0",
+            cell_id: privatePublicationCell.cell_id,
             fn_name: "assign_editor_role",
             payload: bob.agentPubKey,
-            provenance: alice.agentPubKey,
             zome_name: "roles",
           });
           await bobConductor.appAgentWs().callZome({
-            role_name: "private_publication.0",
+            cell_id: bobsPrivatePublicationCellId,
             fn_name: "assign_editor_role",
             payload: alice.agentPubKey,
-            provenance: bob.agentPubKey,
             zome_name: "roles",
           });
           return;
@@ -157,18 +160,16 @@ export default () =>
 
         if (isExercise && stepNum == 6) {
           await aliceConductor.appAgentWs().callZome({
-            role_name: "private_publication.0",
+            cell_id: privatePublicationCell.cell_id,
             fn_name: "assign_editor_role",
             payload: bob.agentPubKey,
-            provenance: alice.agentPubKey,
             zome_name: "roles",
           });
           try {
             await bobConductor.appAgentWs().callZome({
-              role_name: "private_publication.0",
+              cell_id: bobsPrivatePublicationCellId,
               fn_name: "assign_editor_role",
               payload: alice.agentPubKey,
-              provenance: bob.agentPubKey,
               zome_name: "roles",
             });
             t.ok(
@@ -183,13 +184,12 @@ export default () =>
 
         try {
           await bobConductor.appAgentWs().callZome({
-            role_name: "private_publication.0",
+            cell_id: bobsPrivatePublicationCellId,
             fn_name: "create_post",
             payload: {
               title: "hello",
               content: "hi",
             },
-            provenance: bob.agentPubKey,
             zome_name: "posts",
           });
           t.ok(
@@ -201,51 +201,47 @@ export default () =>
         }
 
         await aliceConductor.appAgentWs().callZome({
-          role_name: "private_publication.0",
+          cell_id: privatePublicationCell.cell_id,
           fn_name: "assign_editor_role",
           payload: bob.agentPubKey,
-          provenance: alice.agentPubKey,
           zome_name: "roles",
         });
 
         await bobConductor.appAgentWs().callZome({
-          role_name: "private_publication.0",
+          cell_id: bobsPrivatePublicationCellId,
           fn_name: "create_post",
           payload: {
             title: "hello",
             content: "hi",
           },
-          provenance: bob.agentPubKey,
           zome_name: "posts",
         });
 
         if (isExercise && stepNum === 7) return;
 
         const bobsPostHash = await bobConductor.appAgentWs().callZome({
-          role_name: "private_publication.0",
+          cell_id: bobsPrivatePublicationCellId,
           fn_name: "create_post",
           payload: {
             title: "hello",
             content: "hi",
           },
-          provenance: bob.agentPubKey,
           zome_name: "posts",
         });
 
         const alicesPostHash = await aliceConductor.appAgentWs().callZome({
-          role_name: "private_publication.0",
+          cell_id: privatePublicationCell.cell_id,
           fn_name: "create_post",
           payload: {
             title: "hello",
             content: "hi",
           },
-          provenance: alice.agentPubKey,
           zome_name: "posts",
         });
 
         try {
           await aliceConductor.appAgentWs().callZome({
-            role_name: "private_publication.0",
+            cell_id: privatePublicationCell.cell_id,
             fn_name: "update_post",
             payload: {
               post_to_update: bobsPostHash,
@@ -254,11 +250,10 @@ export default () =>
                 content: "yes!",
               },
             },
-            provenance: alice.agentPubKey,
             zome_name: "posts",
           });
           await bobConductor.appAgentWs().callZome({
-            role_name: "private_publication.0",
+            cell_id: bobsPrivatePublicationCellId,
             fn_name: "update_post",
             payload: {
               post_to_update: alicesPostHash,
@@ -267,7 +262,6 @@ export default () =>
                 content: "yes!",
               },
             },
-            provenance: bob.agentPubKey,
             zome_name: "posts",
           });
           t.ok(

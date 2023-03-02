@@ -24,7 +24,7 @@ export default () =>
         const [aliceConductor, alice] = await installApp(scenario);
         const [bobConductor, bob] = await installApp(scenario);
 
-        await aliceConductor.appAgentWs().createCloneCell({
+        const alicePrivatePublicationCell = await aliceConductor.appAgentWs().createCloneCell({
           role_name: "private_publication",
           modifiers: {
             network_seed: "test",
@@ -51,14 +51,7 @@ export default () =>
           zome_name: "posts",
         });
 
-        let allPosts: Array<ActionHash> = await aliceLobby.callZome({
-          fn_name: "request_read_private_publication_posts",
-          payload: null,
-          provenance: alice.agentPubKey,
-          zome_name: "private_publication_lobby",
-        });
-        t.equal(allPosts.length, 1);
-        if (isExercise && stepNum === 1) return;
+        let allPosts: Array<ActionHash>;
 
         try {
           const allPosts: any = await bobLobby.callZome({
@@ -73,8 +66,10 @@ export default () =>
 
         const secret = await aliceLobby.callZome({
           fn_name: "grant_capability_to_read",
-          payload: bob.agentPubKey,
-          provenance: alice.agentPubKey,
+          payload: {
+            reader: bob.agentPubKey,
+            private_publication_dna_hash: alicePrivatePublicationCell.cell_id[0]
+          },
           zome_name: "private_publication_lobby",
         });
         if (isExercise && stepNum === 1) return;
@@ -82,7 +77,6 @@ export default () =>
         await bobLobby.callZome({
           fn_name: "store_capability_claim",
           payload: { cap_secret: secret, grantor: alice.agentPubKey },
-          provenance: bob.agentPubKey,
           zome_name: "private_publication_lobby",
         });
         if (isExercise && stepNum === 2) return;

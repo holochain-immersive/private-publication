@@ -69,11 +69,10 @@ sequenceDiagram
 participant ReaderLobbyCell
 actor Reader
 actor Author
-box Author's conductor
 participant AuthorLobbyCell
 participant AuthorPrivateCell
-end
 
+Note over AuthorLobbyCell,AuthorPrivateCell: Author's conductor
 Reader->>Author: "the reader asks the author for read permissions"
 Author->>+AuthorLobbyCell: grant_capability_to_read(reader_pub_key)
 AuthorLobbyCell-->>AuthorLobbyCell: generate_cap_secret()
