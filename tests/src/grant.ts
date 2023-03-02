@@ -52,7 +52,7 @@ export default () =>
         });
 
         let allPosts: Array<ActionHash> = await aliceLobby.callZome({
-          fn_name: "request_read_all_posts",
+          fn_name: "request_read_private_publication_posts",
           payload: null,
           provenance: alice.agentPubKey,
           zome_name: "private_publication_lobby",
@@ -62,7 +62,7 @@ export default () =>
 
         try {
           const allPosts: any = await bobLobby.callZome({
-            fn_name: "read_all_posts",
+            fn_name: "read_posts_for_author",
             payload: alice.agentPubKey,
             zome_name: "private_publication_lobby",
           });
@@ -77,7 +77,7 @@ export default () =>
           provenance: alice.agentPubKey,
           zome_name: "private_publication_lobby",
         });
-        if (isExercise && stepNum === 2) return;
+        if (isExercise && stepNum === 1) return;
 
         await bobLobby.callZome({
           fn_name: "store_capability_claim",
@@ -85,16 +85,28 @@ export default () =>
           provenance: bob.agentPubKey,
           zome_name: "private_publication_lobby",
         });
-        if (isExercise && stepNum === 3) return;
+        if (isExercise && stepNum === 2) return;
 
-        allPosts = await bobLobby.callZome({
-          fn_name: "read_all_posts",
-          payload: alice.agentPubKey,
-          zome_name: "private_publication_lobby",
-        });
-        t.equal(allPosts.length, 1);
-
-        if (isExercise && stepNum === 4) return;
+        if (isExercise && stepNum === 3) {
+          try {
+            allPosts = await bobLobby.callZome({
+              fn_name: "read_posts_for_author",
+              payload: alice.agentPubKey,
+              zome_name: "private_publication_lobby",
+            });
+            t.ok(false);
+          } catch (e) {
+            t.ok(JSON.stringify(e).includes('zome function not found'), 'read_posts_for_author should make a call_remote to `request_read_private_publication_posts` ')
+          }
+        } else {
+        
+          allPosts = await bobLobby.callZome({
+            fn_name: "read_posts_for_author",
+            payload: alice.agentPubKey,
+            zome_name: "private_publication_lobby",
+          });
+          t.equal(allPosts.length, 1);
+        }
       });
     } catch (e) {
       console.log(e);

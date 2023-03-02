@@ -37,35 +37,97 @@ not ok 1 Error: There are no entries defined in the profiles zome
 
 - Eg. for first step of the 2nd exercise, you should run `EXERCISE=2 STEP=1 npm test`.
 
-## Exercise 1: Capability Tokens
+## Private publication
+
+The private publication app is really similar to the forum one from the first exercise, although with a couple of important architectural differences. 
+
+The requirement for this app is that any agent can create their own private publication, for which they have complete read and write permissions. Let us call this agent the "author" of the publication.
+After creating the publication, its author can grant read permissions for it to any other agent, the "reader". These permissions should be revokable, meaning that at any point in time the author of the publication can remove the read permissions from the reader.
+
+Lastly, the author of a private publication can also grant write permissions to any agent, which we'll call the "editor" of the publication. This permission isn't be revokable.
+
+### Architecture
 
 In this setup, there are two DNAs:
 
-- Lobby: everyone is able to join this DNA.
-- Private publication: this is a clonable DNA: any author can choose to create its own private publication DNA, and they do so by cloning the private publication DNA and setting their own public key in the properties as the DNA's progenitor (which means they are the administrator for that DNA).  Other agents can then be invited to this cloned DNA if the progenitor wants, so that they can also become authors of the publication.
+- Lobby: everyone is able to join this DNA. This is where agents negotiate granting of capabilities to read the private publications.
+- Private publication: this is a clonable DNA, which means that it's not instantiated at install time. Instead, any author can choose to create its own private publication DNA, and they do so by cloning the private publication DNA and setting their own public key in the properties as the DNA's progenitor (which means they are the administrator for that DNA).  Other agents can then be invited to this cloned DNA if the progenitor wants, so that they can also become authors of the publication.
 
-We are going to create the zome for the lobby DNA, with this functionality:
+## Exercise 1: Capability Tokens
+
+The posts zome for creating and managing the posts is already implemented. In this exercise we are going to create the zome for the lobby DNA, with this functionality:
 
 - Grant permissions to read the private publication to an agent in the lobby.
 
+This is the flow that we've designed for granting read permissions:
+
+You can visualize this diagram in its [github page](https://github.com/holochain-immersive/private-publication/blob/main/EXERCISES.md#exercise-1-capability-tokens).
+
+```mermaid
+sequenceDiagram
+
+participant ReaderLobbyCell
+actor Reader
+actor Author
+box Author's conductor
+participant AuthorLobbyCell
+participant AuthorPrivateCell
+end
+
+Reader->>Author: "the reader asks the author for read permissions"
+Author->>+AuthorLobbyCell: grant_capability_to_read(reader_pub_key)
+AuthorLobbyCell-->>AuthorLobbyCell: generate_cap_secret()
+AuthorLobbyCell-->>AuthorLobbyCell: create_cap_grant(cap_secret, private_publication_dna_hash as tag)
+AuthorLobbyCell-->>-Author: cap_secret
+Author->>Reader: "the author shares the cap_secret with the reader"
+Reader->>+ReaderLobbyCell: store_capability_claim(author_pub_key, cap_secret)
+ReaderLobbyCell-->>-ReaderLobbyCell: create_cap_claim(cap_secret)
+Note over Author,Reader: From now on the reader is authorized to read the posts
+Reader->>+ReaderLobbyCell: read_all_posts(author_pub_key)
+ReaderLobbyCell->>+AuthorLobbyCell: call_remote("request_read_all_posts")
+AuthorLobbyCell-->>AuthorLobbyCell: call_info()
+AuthorLobbyCell-->>AuthorLobbyCell: extract private_publication_dna_hash from call_info.cap_grant
+AuthorLobbyCell->>+AuthorPrivatePublicationCell: call(private_publication_dna_hash, "read_all_posts")
+AuthorPrivatePublicationCell-->>-AuthorLobbyCell: posts
+AuthorLobbyCell-->>-ReaderLobbyCell: posts
+ReaderLobbyCell-->>-Reader: posts
+```
+
 Solve the next steps in the `private_publication_lobby` coordinator zome, in `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`.
 
-1. Create a function `request_read_all_posts` with no inputs, and makes a bridge call to the cell with role name `private_publication.0`, zome name `posts`, and function name `get_all_posts`, and just returns its contents.
+1. Create a `GrantCapabilityToReadInput` struct with two fields: `reader` of type `AgentPubKey` and `private_publication_dna_hash` of type `DnaHash`.
 
-2. Create a function `grant_capability_to_read` that receives an `AgentPubKey` struct, generates a capability secret with `random_bytes()`, grants capability to call `request_read_all_posts` to the given agent, and returns the `CapSecret` that was generated.
+- Annotate this struct with `#[derive(Serialize, Deserialize, Debug)]`.
+- Create a function `grant_capability_to_read` that receives a `GrantCapabilityToReadInput` struct and: 
+  - Generates a capability secret with `random_bytes()`.
+  - Converts the `private_publication_dna_hash` to a `String` using `DnaHashB64::from(input.private_publication_dna_hash).to_string()`.
+  - Create the capability grant to call `request_read_private_publication_posts` to the reader, using the stringified `private_publication_dna_hash` as the tag.
+  - Returns the `CapSecret` that was generated.
 
-3. Create a `StoreCapClaimInput` struct with two fields: `grantor` of type `AgentPubKey`, and `cap_secret` of type `CapSecret`.
+2. Create a `StoreCapClaimInput` struct with two fields: `author` of type `AgentPubKey`, and `cap_secret` of type `CapSecret`.
 
-- Annotate this struct with `#[derive(Serialize, Deserialize, Debug, SerializedBytes)]`.
-- Create a function `store_capability_claim` that receives an `StoreCapClaimInput` struct and stores a capability claim with the given secret and grantor.
+- Annotate this struct with `#[derive(Serialize, Deserialize, Debug)]`.
+- Create a function `store_capability_claim` that receives an `StoreCapClaimInput` struct and stores a capability claim with the given secret and author.
 
-
-4. Create a function `read_all_posts` that receives the `AgentPubKey` of the author of the private publication we want to read the posts from, and returns a `Vec<Record>`:
+3. Create a function `read_posts_for_author` that receives the `AgentPubKey` of the author of the private publication we want to read the posts from, and returns a `Vec<Record>`:
 
 - Query the source chain to get the capability claim.
-- Call remote to the given agent's `request_read_all_posts`.
+- Call remote to the given author's `request_read_private_publication_posts` and the capability secret found in the capability claim.
 - Return the result.
 
+4. Create a function `request_read_private_publication_posts` with no inputs that:
+
+- Calls [call_info()](https://docs.rs/hdk/latest/hdk/info/fn.call_info.html) and extracts the capability grant that was used to call this function.
+- Converts the tag from the capability grant to a `DnaHash`, using 
+```rust
+let private_publication_dna_hash = DnaHash::from(
+    DnaHashB64::from_b64_str(zome_call_cap_grant.tag.as_str()).or(Err(wasm_error!(
+        WasmErrorInner::Guest(String::from("Bad cap_grant tag"))
+    )))?,
+);
+```
+- Constructs the private publication cell id with `CellId::new(private_publication_dna_hash, agent_info()?.agent_latest_pubkey)`
+- Makes a [bridge call](https://docs.rs/hdk/latest/hdk/p2p/fn.call.html) to the private publication cell, zome name `posts`, and function name `get_all_posts`, and just returns its contents.
 
 ## Exercise 2: Validation Rules
 
@@ -76,10 +138,14 @@ We are going to implement these new functionalities:
 - Only agents with the editor role should be able to create posts in the private publication DNA.
 - Only the creator of a post should be able to update it.
 
+Go into `crates/membrane_proof/src/lib.rs`. 
+
+- Notice the `PrivatePublicationMembraneProof` struct. This is the entry that each author is going to create in the lobby, and is going to share with the editor so that they can join the author's private publication dna.
+- Notice also that this struct is located in a shared crate, which both the `private_publication_lobby` and `private_publication` zomes are going to depend upon.
+
 Go into `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`:
 
-1. Create a  `create_membrane_proof_for` zome function that receives an `AgentPubKey` and returns no output. This function will be executed by the progenitor of the app.
-   - Does a bridge call to the `get_dna_hash` of the `posts` zome of the `private_publication` DNA, without passing any arguments. That function is already defined and returns a `DnaHash`.
+1. Create a  `create_membrane_proof_for` zome function that receives a `PrivatePublicationMembraneProof` and returns no output. This function will be executed by the progenitor of the app.
    - Create a `PrivatePublicationMembraneProof` entry with the private publication DNA hash and the recipient for that membrane. 
    - Create a link from the agent public key of the recipient to the newly created action.
 2. Create a `get_my_membrane_proof` zome function that doesn't receive any parameters, and returns an `Option<Record>`.

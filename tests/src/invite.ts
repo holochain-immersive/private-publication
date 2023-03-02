@@ -25,7 +25,7 @@ export default () =>
         const [bobConductor, bob] = await installApp(scenario);
         const [carolConductor, carol] = await installApp(scenario);
 
-        await aliceConductor.appWs().createCloneCell({
+        const privatePublicationCell = await aliceConductor.appWs().createCloneCell({
           app_id: "private_publication",
           role_name: "private_publication",
           modifiers: {
@@ -45,7 +45,10 @@ export default () =>
 
         await aliceLobby.callZome({
           fn_name: "create_membrane_proof_for",
-          payload: bob.agentPubKey,
+          payload: {
+            recipient: bob.agentPubKey,
+            dna_hash: privatePublicationCell.cell_id[0]
+          },
           provenance: alice.agentPubKey,
           zome_name: "private_publication_lobby",
         });
