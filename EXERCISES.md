@@ -99,7 +99,7 @@ Solve the next steps in the `private_publication_lobby` coordinator zome, in `dn
 - Create a function `grant_capability_to_read` that receives a `GrantCapabilityToReadInput` struct and: 
   - Generates a capability secret with `random_bytes()`.
   - Converts the `private_publication_dna_hash` to a `String` using `DnaHashB64::from(input.private_publication_dna_hash).to_string()`.
-  - Create the capability grant to call `request_read_private_publication_posts` to the reader, using the stringified `private_publication_dna_hash` as the tag.
+  - Create an assigned capability grant to call `request_read_private_publication_posts` to the reader, using the stringified `private_publication_dna_hash` as the tag.
   - Returns the `CapSecret` that was generated.
 
 2. Create a `StoreCapClaimInput` struct with two fields: `author` of type `AgentPubKey`, and `cap_secret` of type `CapSecret`.
