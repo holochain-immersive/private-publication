@@ -69,9 +69,9 @@ participant ReaderLobbyCell
 actor Reader
 actor Author
 participant AuthorLobbyCell
-participant AuthorPrivateCell
+participant AuthorPrivatePublicationCell
 
-Note over AuthorLobbyCell,AuthorPrivateCell: Author's conductor
+Note over AuthorLobbyCell,AuthorPrivatePublicationCell: Author's conductor
 Reader->>Author: "the reader asks the author for read permissions"
 Author->>+AuthorLobbyCell: grant_capability_to_read(reader_pub_key)
 AuthorLobbyCell-->>AuthorLobbyCell: generate_cap_secret()
