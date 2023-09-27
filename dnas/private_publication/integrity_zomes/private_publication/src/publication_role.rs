@@ -1,5 +1,8 @@
 use hdi::prelude::*;
 
+// Uncomment this line
+// use crate::properties::progenitor;
+
 #[derive(Clone)]
 #[hdk_entry_helper]
 pub struct PublicationRole {
@@ -7,6 +10,9 @@ pub struct PublicationRole {
     pub assignee: AgentPubKey,
 }
 
+/**
+* Implement this function
+ */
 pub fn validate_create_publication_role(
     action: EntryCreationAction,
     publication_role: PublicationRole,
@@ -14,8 +20,7 @@ pub fn validate_create_publication_role(
     Ok(ValidateCallbackResult::Valid)
 }
 
-
-/** Validation that is already implemeneted, don't touch **/
+/** Validation that is already implemented, don't touch **/
 
 pub fn validate_update_publication_role(
     _action: Update,

@@ -19,14 +19,15 @@ pub enum LinkTypes {
     PathToPost,
 }
 
-////////////////////////////////////////////////////////////////////////////////
-// Genesis self-check callback
-////////////////////////////////////////////////////////////////////////////////
+/// Validation you perform during the genesis process. Nobody else on the network performs it, only you.
+/// There *is no* access to network calls in this callback
 #[hdk_extern]
 pub fn genesis_self_check(data: GenesisSelfCheckData) -> ExternResult<ValidateCallbackResult> {
     is_membrane_proof_valid(data.agent_key, data.membrane_proof)
 }
 
+/// Validation the network performs when you try to join, you can't perform this validation yourself as you are not a member yet.
+/// There *is* access to network calls in this function
 pub fn validate_agent_joining(
     agent_pub_key: AgentPubKey,
     membrane_proof: &Option<MembraneProof>,
@@ -34,10 +35,30 @@ pub fn validate_agent_joining(
     is_membrane_proof_valid(agent_pub_key, membrane_proof.clone())
 }
 
+/// This is the unified validation callback for all entries and link types in this integrity zome
+/// Below is a match template for all of the variants of `DHT Ops` and entry and link types
+///
+/// Holochain has already performed the following validation for you:
+/// - The action signature matches on the hash of its content and is signed by its author
+/// - The previous action exists, has a lower timestamp than the new action, and incremented sequence number
+/// - The previous action author is the same as the new action author
+/// - The timestamp of each action is after the DNA's origin time
+/// - AgentActivity authorities check that the agent hasn't forked their chain
+/// - The entry hash in the action matches the entry content
+/// - The entry type in the action matches the entry content
+/// - The entry size doesn't exceed the maximum entry size (currently 4MB)
+/// - Private entry types are not included in the Op content, and public entry types are
+/// - If the `Op` is an update or a delete, the original action exists and is a `Create` or `Update` action
+/// - If the `Op` is an update, the original entry exists and is of the same type as the new one
+/// - If the `Op` is a delete link, the original action exists and is a `CreateLink` action
+/// - Link tags don't exceed the maximum tag size (currently 1KB)
+/// - Countersigned entries include an action from each required signer
+///
+/// You can read more about validation here: https://docs.rs/hdi/latest/hdi/index.html#data-validation
 #[hdk_extern]
 pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
-    match op.to_type::<EntryTypes, LinkTypes>()? {
-        OpType::StoreEntry(store_entry) => match store_entry {
+    match op.flattened::<EntryTypes, LinkTypes>()? {
+        FlatOp::StoreEntry(store_entry) => match store_entry {
             OpEntry::CreateEntry { app_entry, action } => match app_entry {
                 EntryTypes::Post(post) => {
                     validate_create_post(EntryCreationAction::Create(action), post)
@@ -60,7 +81,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterUpdate(update_entry) => match update_entry {
+        FlatOp::RegisterUpdate(update_entry) => match update_entry {
             OpUpdate::Entry {
                 original_action,
                 original_app_entry,
@@ -85,7 +106,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterDelete(delete_entry) => match delete_entry {
+        FlatOp::RegisterDelete(delete_entry) => match delete_entry {
             OpDelete::Entry {
                 original_action,
                 original_app_entry,
@@ -98,7 +119,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             },
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterCreateLink {
+        FlatOp::RegisterCreateLink {
             link_type,
             base_address,
             target_address,
@@ -109,7 +130,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 validate_create_link_all_posts(action, base_address, target_address, tag)
             }
         },
-        OpType::RegisterDeleteLink {
+        FlatOp::RegisterDeleteLink {
             link_type,
             base_address,
             target_address,
@@ -125,7 +146,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
                 tag,
             ),
         },
-        OpType::StoreRecord(store_record) => match store_record {
+        FlatOp::StoreRecord(store_record) => match store_record {
             OpRecord::CreateEntry { app_entry, action } => match app_entry {
                 EntryTypes::Post(post) => {
                     validate_create_post(EntryCreationAction::Create(action), post)
@@ -336,7 +357,7 @@ pub fn validate(op: Op) -> ExternResult<ValidateCallbackResult> {
             OpRecord::InitZomesComplete { .. } => Ok(ValidateCallbackResult::Valid),
             _ => Ok(ValidateCallbackResult::Valid),
         },
-        OpType::RegisterAgentActivity(agent_activity) => match agent_activity {
+        FlatOp::RegisterAgentActivity(agent_activity) => match agent_activity {
             OpActivity::CreateAgent { agent, action } => {
                 let previous_action = must_get_action(action.prev_action)?;
                 match previous_action.action() {

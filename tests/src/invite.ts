@@ -28,7 +28,7 @@ export default () =>
         const [carolConductor, carol] = await installApp(scenario);
 
         console.log(
-          "Private Publication - Exercise 1: Alice, Bob and Carol install the private publication app"
+          "Private Publication - Exercise 2: Alice, Bob and Carol install the private publication app"
         );
 
         const privatePublicationCell = await aliceConductor
@@ -45,7 +45,7 @@ export default () =>
           });
 
         console.log(
-          "Private Publication - Exercise 1: Alice creates a cloned cell of the 'private_publication' Dna, with its own public key as the 'progenitor' field in the properties"
+          "Private Publication - Exercise 2: Alice creates a cloned cell of the 'private_publication' Dna, with its own public key as the 'progenitor' field in the properties"
         );
 
         // Shortcut peer discovery through gossip and register all agents in every
@@ -56,7 +56,7 @@ export default () =>
         const bobLobby = bob.namedCells.get("lobby")!;
 
         console.log(
-          "Private Publication - Exercise 1: Alice tries to create a membrane proof for Bob"
+          "Private Publication - Exercise 2: Alice tries to create a membrane proof for Bob"
         );
         const membraneProofEntry = {
           recipient: bob.agentPubKey,
@@ -77,7 +77,7 @@ export default () =>
 
         await pause(1000);
         console.log(
-          "Private Publication - Exercise 1: Bob tries get their own membrane proof"
+          "Private Publication - Exercise 2: Bob tries get their own membrane proof"
         );
 
         const membraneProof: Record | undefined = await bobLobby.callZome({
@@ -99,7 +99,7 @@ export default () =>
         let bobsPrivatePublicationCellId;
         try {
           console.log(
-            "Private Publication - Exercise 1: Bob tries to join Alice's private_publication clone using the membrane proof that Alice created"
+            "Private Publication - Exercise 2: Bob tries to join Alice's private_publication clone using the membrane proof that Alice created"
           );
           const cloneCell = await bobConductor.appWs().createCloneCell({
             app_id: "private_publication",
@@ -125,7 +125,7 @@ export default () =>
 
         if (isExercise && stepNum === 2) return;
         console.log(
-          "Private Publication - Exercise 1: Alice tries to get the progenitor's public key for their private_publication clone"
+          "Private Publication - Exercise 2: Alice tries to get the progenitor's public key for their private_publication clone"
         );
 
         const progenitor = await aliceConductor.appAgentWs().callZome({
@@ -140,7 +140,7 @@ export default () =>
 
         try {
           console.log(
-            "Private Publication - Exercise 1: Carol tries to join Alice's private_publication clone without providing any membrane proof"
+            "Private Publication - Exercise 2: Carol tries to join Alice's private_publication clone without providing any membrane proof"
           );
           await carolConductor.appWs().createCloneCell({
             app_id: "private_publication",
@@ -162,7 +162,7 @@ export default () =>
 
         try {
           console.log(
-            "Private Publication - Exercise 1: Carol tries to join Alice's private_publication clone without providing any membrane proof"
+            "Private Publication - Exercise 2: Carol tries to join Alice's private_publication clone without providing any membrane proof"
           );
           await carolConductor.appWs().createCloneCell({
             app_id: "private_publication",
@@ -182,7 +182,7 @@ export default () =>
         } catch (e) {
           try {
             console.log(
-              "Private Publication - Exercise 1: Carol tries to join Alice's private_publication clone with Bob's the membrane proof, but tampering with it and substituting Bob's public key in the recipient field with Carol's public key"
+              "Private Publication - Exercise 2: Carol tries to join Alice's private_publication clone with Bob's the membrane proof, but tampering with it and substituting Bob's public key in the recipient field with Carol's public key"
             );
             const tamperedMembraneProof = cloneDeep(membraneProof!);
             const tamperedMembraneProofEntry = {
@@ -219,7 +219,7 @@ export default () =>
 
         if (isExercise && stepNum === 5) {
           console.log(
-            "Private Publication - Exercise 1: Alice tries to assign the editor role to Bob in Alice's private publication clone"
+            "Private Publication - Exercise 2: Alice tries to assign the editor role to Bob in Alice's private publication clone"
           );
           await aliceConductor.appAgentWs().callZome({
             cell_id: privatePublicationCell.cell_id,
@@ -228,7 +228,7 @@ export default () =>
             zome_name: "roles",
           });
           console.log(
-            "Private Publication - Exercise 1: Bobe tries to assign the editor role to Alice in Alice's private publication clone"
+            "Private Publication - Exercise 2: Bobe tries to assign the editor role to Alice in Alice's private publication clone"
           );
           await bobConductor.appAgentWs().callZome({
             cell_id: bobsPrivatePublicationCellId,
@@ -241,7 +241,7 @@ export default () =>
 
         if (isExercise && stepNum == 6) {
           console.log(
-            "Private Publication - Exercise 1: Alice tries to assign the editor role to Bob in Alice's private publication clone"
+            "Private Publication - Exercise 2: Alice tries to assign the editor role to Bob in Alice's private publication clone"
           );
           await aliceConductor.appAgentWs().callZome({
             cell_id: privatePublicationCell.cell_id,
@@ -251,7 +251,7 @@ export default () =>
           });
           try {
             console.log(
-              "Private Publication - Exercise 1: Bob tries to assign the editor role to Alice in Alice's private publication clone"
+              "Private Publication - Exercise 2: Bob tries to assign the editor role to Alice in Alice's private publication clone"
             );
             await bobConductor.appAgentWs().callZome({
               cell_id: bobsPrivatePublicationCellId,
@@ -271,7 +271,7 @@ export default () =>
 
         try {
           console.log(
-            "Private Publication - Exercise 1: Bob tries to create a post in Alice's private publication clone"
+            "Private Publication - Exercise 2: Bob tries to create a post in Alice's private publication clone"
           );
           await bobConductor.appAgentWs().callZome({
             cell_id: bobsPrivatePublicationCellId,
@@ -291,7 +291,7 @@ export default () =>
         }
 
         console.log(
-          "Private Publication - Exercise 1: Alice tries to assign the editor role to Bob in Alice's private publication clone"
+          "Private Publication - Exercise 2: Alice tries to assign the editor role to Bob in Alice's private publication clone"
         );
         await aliceConductor.appAgentWs().callZome({
           cell_id: privatePublicationCell.cell_id,
@@ -301,7 +301,7 @@ export default () =>
         });
 
         console.log(
-          "Private Publication - Exercise 1: Bob tries to create a post in Alice's private publication clone"
+          "Private Publication - Exercise 2: Bob tries to create a post in Alice's private publication clone"
         );
         const bobsPostHash = await bobConductor.appAgentWs().callZome({
           cell_id: bobsPrivatePublicationCellId,
@@ -315,7 +315,7 @@ export default () =>
         if (isExercise && stepNum === 7) return;
 
         console.log(
-          "Private Publication - Exercise 1: Alice tries to create a post in Alice's private publication clone"
+          "Private Publication - Exercise 2: Alice tries to create a post in Alice's private publication clone"
         );
         const alicesPostHash = await aliceConductor.appAgentWs().callZome({
           cell_id: privatePublicationCell.cell_id,
@@ -327,9 +327,10 @@ export default () =>
           zome_name: "posts",
         });
 
+        await pause(2000);
         try {
           console.log(
-            "Private Publication - Exercise 1: Alice tries to update Bob's post in Alice's private publication clone"
+            "Private Publication - Exercise 2: Alice tries to update Bob's post in Alice's private publication clone"
           );
           await aliceConductor.appAgentWs().callZome({
             cell_id: privatePublicationCell.cell_id,
@@ -343,8 +344,25 @@ export default () =>
             },
             zome_name: "posts",
           });
+          t.ok(
+            false,
+            "An agent that's not the author of a post shouldn't be able to update it"
+          );
+        } catch (e) {
+          if (
+            JSON.stringify(e).includes(
+              "Source chain error: InvalidCommit error: Only the author of a post can update it"
+            )
+          ) {
+            t.ok(true);
+          } else {
+            throw e;
+          }
+        }
+
+        try {
           console.log(
-            "Private Publication - Exercise 1: Bob tries to update Alice's post in Alice's private publication clone"
+            "Private Publication - Exercise 2: Bob tries to update Alice's post in Alice's private publication clone"
           );
           await bobConductor.appAgentWs().callZome({
             cell_id: bobsPrivatePublicationCellId,
@@ -363,7 +381,15 @@ export default () =>
             "An agent that's not the author of a post shouldn't be able to update it"
           );
         } catch (e) {
-          t.ok(true);
+          if (
+            JSON.stringify(e).includes(
+              "Source chain error: InvalidCommit error: Only the author of a post can update it"
+            )
+          ) {
+            t.ok(true);
+          } else {
+            throw e;
+          }
         }
       });
     } catch (e) {

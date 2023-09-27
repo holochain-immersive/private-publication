@@ -1,11 +1,18 @@
 use hdi::prelude::*;
 
+// Uncomment this line
+// use crate::{properties::progenitor, *};
+
 #[derive(Clone)]
 #[hdk_entry_helper]
 pub struct Post {
     pub title: String,
     pub content: String,
 }
+
+/**
+* Implement these functions
+ */
 
 pub fn validate_create_post(
     action: EntryCreationAction,

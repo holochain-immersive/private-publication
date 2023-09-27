@@ -93,12 +93,12 @@ ReaderLobbyCell-->>-Reader: posts
 
 Solve the next steps in the `private_publication_lobby` coordinator zome, in `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`.
 
-1. Create a `GrantCapabilityToReadInput` struct with two fields: `reader` of type `AgentPubKey` and `private_publication_dna_hash` of type `DnaHash`.
+1. Create a `GrantCapabilityToReadInput` struct with two fields: `reader` of type `AgentPubKey` and `private_publication_dna_hash` of type `DnaHash` (which you can use from `hdk::prelude::holo_hash`).
 
 - Annotate this struct with `#[derive(Serialize, Deserialize, Debug)]`.
 - Create a function `grant_capability_to_read` that receives a `GrantCapabilityToReadInput` struct and: 
   - Generates a capability secret with `random_bytes()`.
-  - Converts the `private_publication_dna_hash` to a `String` using `DnaHashB64::from(input.private_publication_dna_hash).to_string()`.
+  - Converts the `private_publication_dna_hash` to a `String` using `DnaHashB64::from(input.private_publication_dna_hash).to_string()`. You can use `DnaHashB64` from `hdk::prelude::holo_hash`.
   - Create an assigned capability grant to call `request_read_private_publication_posts` to the reader, using the stringified `private_publication_dna_hash` as the tag.
   - Returns the `CapSecret` that was generated.
 
@@ -107,7 +107,7 @@ Solve the next steps in the `private_publication_lobby` coordinator zome, in `dn
 - Annotate this struct with `#[derive(Serialize, Deserialize, Debug)]`.
 - Create a function `store_capability_claim` that receives an `StoreCapClaimInput` struct and stores a capability claim with the given secret and author.
 
-3. Create a function `read_posts_for_author` that receives the `AgentPubKey` of the author of the private publication we want to read the posts from, and returns a `Vec<Record>`:
+3. Create a function `read_posts_for_author` that receives the `AgentPubKey` of the author of the private publication we want to read the posts from, and returns an `ExternResult<Vec<Record>>`:
 
 - Query the source chain to get the capability claim.
 - Call remote to the given author's `request_read_private_publication_posts` and the capability secret found in the capability claim.
@@ -144,11 +144,12 @@ Go into `crates/membrane_proof/src/lib.rs`.
 
 Go into `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`:
 
-1. Create a  `create_membrane_proof_for` zome function that receives a `PrivatePublicationMembraneProof` and returns no output. This function will be executed by the progenitor of the app.
+1. Create a  `create_membrane_proof_for` zome function that receives a `PrivatePublicationMembraneProof` and returns an `ExternResult<()>`.  This function will be executed by the progenitor of the app.
    - Create a `PrivatePublicationMembraneProof` entry with the private publication DNA hash and the recipient for that membrane. 
+     - This entry type is already defined in `dnas/lobby/integrity_zomes/private_publication_lobby/src/lib.rs`. You just need to use that struct, and create en entry of that type in the `create_membrane_proof_for` zome function.
    - Create a link from the agent public key of the recipient to the newly created action.
 
-2. Create a `get_my_membrane_proof` zome function that doesn't receive any parameters, and returns an `Option<Record>`.
+2. Create a `get_my_membrane_proof` zome function that doesn't receive any parameters, and returns an `ExternResult<Option<Record>>`.
    - Get the links from your public key of type `LinkTypes::AgentToMembraneProof`.
    - If there is some link, return the record that the target is pointing to.
 
@@ -160,6 +161,7 @@ Go into `dnas/lobby/integrity_zomes/private_publication/src/properties.rs`:
 - Create an extern function `progenitor` that doesn't have any input parameters and that returns the `AgentPubKey` for the progenitor of this DNA.
   - Get the serialized properties with `dna_info()?.properties`.
   - Transform that serialized properties type into our `Properties` struct.
+  - Convert the `AgentPubKeyB64` into an `AgentPubKey` with `AgentPubKey::from()`.
 
 Now go into `dnas/private_publication/integrity_zomes/private_publication/src/validation.rs`. There you can see boilerplate that allows for the genesis self-check and for different validations for the two kinds of entries present in that DNA.
 
