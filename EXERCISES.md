@@ -84,7 +84,7 @@ Reader->>+ReaderLobbyCell: store_capability_claim(author_pub_key, cap_secret)
 ReaderLobbyCell-->>-ReaderLobbyCell: create_cap_claim(cap_secret)
 Note over Author,Reader: From now on the reader is authorized to read the posts
 Reader->>+ReaderLobbyCell: read_posts_for_author(author_pub_key)
-ReaderLobbyCell->>+AuthorLobbyCell: call_remote(autor_pub_key, "request_read_private_publication_posts")
+ReaderLobbyCell->>+AuthorLobbyCell: call_remote(cap_secret, "request_read_private_publication_posts")
 AuthorLobbyCell-->>AuthorLobbyCell: call_info()
 AuthorLobbyCell-->>AuthorLobbyCell: extract private_publication_dna_hash from call_info.cap_grant
 AuthorLobbyCell->>+AuthorPrivatePublicationCell: call(private_publication_dna_hash, "read_all_posts")
