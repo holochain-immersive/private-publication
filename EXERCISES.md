@@ -116,7 +116,7 @@ Solve the next steps in the `private_publication_lobby` coordinator zome, in `dn
   - Make sure to return the actual error message from the `ZomeCallResponse` if the `call_remote` fails.
 - Return the result.
 
-4. Create a function `request_read_private_publication_posts` with no inputs that:
+4. Create a function `request_read_private_publication_posts` with no inputs that returns an `ExternResult<Vec<Record>>`. This function should:
 
 - Calls [call_info()](https://docs.rs/hdk/latest/hdk/info/fn.call_info.html) and extracts the capability grant that was used to call this function.
 - Converts the tag from the capability grant to a `DnaHash`, using 
@@ -128,7 +128,7 @@ let private_publication_dna_hash = DnaHash::from(
 );
 ```
 - Constructs the private publication cell id with `CellId::new(private_publication_dna_hash, agent_info()?.agent_latest_pubkey)`
-- Makes a [bridge call](https://docs.rs/hdk/latest/hdk/p2p/fn.call.html) to the private publication cell, zome name `posts`, and function name `get_all_posts`, and just returns its contents.
+- Makes a [bridge call](https://docs.rs/hdk/latest/hdk/p2p/fn.call.html) to the private publication cell, zome name `posts`, and function name `get_all_posts`, converts its result in to a `Vec<Record>`, and returns that.
 
 ## Exercise 2: Validation Rules
 
