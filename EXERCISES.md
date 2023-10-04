@@ -4,6 +4,8 @@ You are going to re-implement this private publication happ, one exercise at a t
 
 These are the instructions for the first step, amenable to all the other steps:
 
+0. Run `nix develop`. This sets up your terminal with all the developer tooling necessary. Run ALL the commands below WITHIN this environment, otherwise they won't work.
+
 1. Run `EXERCISE=1 STEP=1 npm test`.
 
 - This is the error message you should see:

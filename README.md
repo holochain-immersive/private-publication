@@ -13,15 +13,9 @@ To do that, go into `EXERCISES.md` and follow its instructions. Have fun!
 ## Environment Setup
 
 1. Install the holochain dev environment: https://developer.holochain.org/docs/install/
-2. Enable Holochain cachix with:
 
-```bash
-nix-env -iA cachix -f https://cachix.org/api/v1/install
-cachix use holochain-ci
-```
-
-3. Clone this repo and `cd` inside of it.
-4. Enter the nix shell by running this in the root folder of the repository: 
+2. Clone this repo and `cd` inside of it.
+3. Enter the nix shell by running this in the root folder of the repository: 
 
 ```bash
 nix develop
