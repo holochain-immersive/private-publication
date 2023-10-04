@@ -160,9 +160,10 @@ Go into `dnas/lobby/integrity_zomes/private_publication/src/properties.rs`:
 3. Add a `Properties` struct, with only a `progenitor` field of type `AgentPubKeyB64`.
 
 - Annotate this struct with `#[derive(Serialize, Deserialize, Debug, SerializedBytes)]`.
-- Create an extern function `progenitor` that doesn't have any input parameters and that returns the `AgentPubKey` for the progenitor of this DNA.
-  - Get the serialized properties with `dna_info()?.properties`.
+- Create an extern function `progenitor` that doesn't have any input parameters and that returns an `ExternResult<AgentPubKey>` with the `AgentPubKey` for the progenitor of this DNA.
+  - Get the serialized properties with `dna_info()?.modifiers.properties`.
   - Transform that serialized properties type into our `Properties` struct.
+    - You can deserialize any type that is annotated with `SerializedBytes` using `try_from`: `Properties::try_from(serialized_bytes).map_err(|err| wasm_error!(err))?` 
   - Convert the `AgentPubKeyB64` into an `AgentPubKey` with `AgentPubKey::from()`.
 
 Now go into `dnas/private_publication/integrity_zomes/private_publication/src/validation.rs`. There you can see boilerplate that allows for the genesis self-check and for different validations for the two kinds of entries present in that DNA.
