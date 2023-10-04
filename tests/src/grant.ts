@@ -121,10 +121,13 @@ export default () =>
             });
             t.ok(false);
           } catch (e) {
+            const correctError = JSON.stringify(e).includes("ZomeFnNotExists");
+
             t.ok(
-              JSON.stringify(e).includes("ZomeFnNotExists"),
+              correctError,
               "read_posts_for_author should make a call_remote to `request_read_private_publication_posts` and return the error if ZomeCallResponse contains one"
             );
+            if (!correctError) throw e;
           }
         } else {
           console.log(
