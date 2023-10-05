@@ -17,4 +17,5 @@ private_publication_integrity = { git = "https://github.com/holochain-immersive/
 
 [features]
 exercise = []
+exercise1 = ["exercise"]
 exercise2 = []

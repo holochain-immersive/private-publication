@@ -155,7 +155,7 @@ Go into `dnas/lobby/coordinator_zomes/private_publication_lobby/src/lib.rs`:
    - Get the links from your public key of type `LinkTypes::AgentToMembraneProof`.
    - If there is some link, return the record that the target is pointing to.
 
-Go into `dnas/lobby/integrity_zomes/private_publication/src/properties.rs`:
+Go into `dnas/private_publication/integrity_zomes/private_publication/src/properties.rs`:
 
 3. Add a `Properties` struct, with only a `progenitor` field of type `AgentPubKeyB64`.
 
@@ -172,10 +172,22 @@ Go into `dnas/private_publication/integrity_zomes/private_publication/src/membra
 
 4. Implement the membrane proof check to avoid unwanted agents coming into the DHT:
     - If the agent we are validating for is the progenitor, then the membrane proof check is valid.
-    - If not, serialize the membrane proof into a `Record`.
+    - If not, deserialize the membrane proof into a `Record`.
+      - You can use `let bytes: SerializedBytes = Arc::try_unwrap(membrane_proof).map_err(|err| wasm_error!(WasmErrorInner::Guest(format!("{:?}", err))))?;` to unwrap the `MembraneProof` type into `SerializedBytes`.
+      - You can use `let record = Record::try_from(bytes);` to deserialize a `SerializedBytes` into a `Record`.
     - Check that the author of the action in the record is the progenitor.
-    - Check that the signature in the Record is valid for the `record.action_hashed().content()` of the record.
+    - Check that the signature in the `Record` is valid for the `record.action_hashed().content()` of the record.
     - Deserialize the record's entry into a `PrivatePublicationMembraneProof`.
+      - In general, to extract an entry in the form of its rust struct from a record that contains it, you can use `ENTRY_TYPE::try_from(entry)`. For example, to convert a record from a `Comment` app struct: 
+        ```rust
+        let maybe_entry: Option<Entry> = record
+          .entry
+          .into_option();
+
+        let entry: Entry =  maybe_entry.ok_or(wasm_error!(WasmErrorInner::Guest(String::from("This record doesn't include any entry"))))?;
+
+        let comment = Comment::try_from(entry)?;
+        ```
     - Check that the dna hash inside the `PrivatePublicationMembraneProof` is equal to the dna hash of the `private_publication` DNA.
     - Check that the agent we are checking the membrane for is the agent that is inside the `PrivatePublicationMembraneProof`.
 
